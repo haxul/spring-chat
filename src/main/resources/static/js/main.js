@@ -7,7 +7,7 @@ const createConnection = (e) => {
     if (!username) return
     stompClient = Stomp.over(new SockJS("/ws"))
     stompClient.connect({}, onConnected, () => alert("error with connection"))
-};
+}
 
 function onConnected() {
     stompClient.subscribe("/topic/public", onMessageReceived)
@@ -18,25 +18,33 @@ function onConnected() {
 
 function onMessageReceived(payload) {
     const message = JSON.parse(payload.body)
-    console.log(message)
-    const ul = document.querySelector("#messageArea")
-    const li = document.createElement("li")
-    li.innerHTML = message.content
-    ul.append(li)
+    switch (message.type) {
+        case "JOIN":
+            console.log(message.sender + " is joined")
+        case "CHAT" :
+            const ul = document.querySelector("#messageArea")
+            const li = document.createElement("li")
+            li.innerHTML = message.content
+            ul.append(li)
+            break;
+        case "LEAVE":
+            console.log(message.sender + " left the chat")
+    }
+
 }
 
 function sendMessage(e) {
     e.preventDefault()
     const input = document.querySelector("#message")
     const content = input.value;
-    const body = {sender: username, type:"CHAT", content: content}
+    const body = {sender: username, type: "CHAT", content: content}
     stompClient.send("/app/chat.sendMessage", {}, JSON.stringify(body))
     input.value = ""
 }
 
 document
     .querySelector("#usernameForm")
-    .addEventListener('submit',  createConnection)
+    .addEventListener('submit', createConnection)
 
 document
     .querySelector("#messageForm")
