@@ -1,1 +1,1 @@
-# spring-chat
+# spring-chat by WebSocket
